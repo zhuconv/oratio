@@ -14,7 +14,9 @@ Oratio is a single CLI that points at a YouTube URL, runs a five-stage Claude Op
 
 A 4.9-minute short produced end-to-end by the pipeline from a 64-minute RLC 2025 keynote by **Dale Schuurmans**, *Language Models and Computation*. No human edits inside the run.
 
-https://github.com/user-attachments/assets/9eefc4ec-4dfe-4c29-8719-c23311e3d9ad
+<p align="center">
+  <video src="https://github.com/user-attachments/assets/9eefc4ec-4dfe-4c29-8719-c23311e3d9ad" controls width="480"></video>
+</p>
 
 🎧 **[Download the MP3](https://raw.githubusercontent.com/zhuconv/oratio/main/examples/dale_schuurmans_llms_as_universal_computers.mp3)** · 📄 **[Read the script](examples/dale_schuurmans_llms_as_universal_computers.txt)**
 
