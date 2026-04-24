@@ -17,7 +17,9 @@ dependencies = [
 [project.scripts]
 oratio = "oratio.orchestrator:main"
 oratio-fetch = "oratio.youtube_fetcher.fetch:main"
+oratio-find = "oratio.youtube_search.find:main"
 oratio-tts = "oratio.kokoro_tts.synthesize:main"
+oratio-doctor = "oratio.doctor:main"
 
 [build-system]
 requires = ["hatchling"]

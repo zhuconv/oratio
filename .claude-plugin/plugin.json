@@ -1,0 +1,11 @@
+{
+  "name": "oratio",
+  "description": "Turn a YouTube URL (or a thought leader's name) into a two-voice podcast. Five-stage Claude Opus 4.6 agent pipeline plus local Kokoro 82M TTS. Runs on your Pro/Max subscription — no API key.",
+  "version": "0.2.0",
+  "author": {
+    "name": "zhuconv"
+  },
+  "homepage": "https://github.com/zhuconv/oratio",
+  "repository": "https://github.com/zhuconv/oratio",
+  "license": "MIT"
+}
