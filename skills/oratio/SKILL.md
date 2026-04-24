@@ -40,7 +40,8 @@ All stages run through local agent `query()` calls to your `claude` CLI (Pro/Max
 4. **Aggregate** (`opinion-aggregator`) — clusters into 3–5 themes, assigns `subject_gender` + `subject_tag`.
 5. **Write** (`script-writer`) — `short/script.txt` (~800 words) + `long/ch<NN>_<slug>_script.txt` (~1500 words each).
 6. **Critique script** (`script-critic`) — verbatim fidelity, TTS style, word counts.
-7. **Synthesize** (`oratio-tts`) — one mp3 per script.
+7. **Annotate** — `.md` sidecars + `sources.json` (deterministic Python, no agent).
+8. **Synthesize** (`oratio-tts`) — one mp3 per script.
 
 ## Name-mode pipeline
 
@@ -50,7 +51,8 @@ All stages run through local agent `query()` calls to your `claude` CLI (Pro/Max
 4. **Era-aggregate** (`era-aggregator`) — clusters opinions chronologically into 2–4 eras, identifies transitions with before/after quotes, flags stable themes. Critically: **never fabricates motivation** — if the subject never said why their view shifted, that's marked honestly.
 5. **Corpus script-write** (`corpus-script-writer`) — `short/script.txt` (chronological overview, ~900 words) + `long/<chapter_slug>_script.txt` per era. Each era chapter opens with a transition passage from the previous era.
 6. **Corpus script-critic** (`corpus-script-critic`) — verbatim fidelity across all source transcripts, plus `fabricated_motivation` check on every transition opening.
-7. **Synthesize** (`oratio-tts`) — one mp3 per script.
+7. **Annotate** (deterministic Python, no agent) — emit `.md` sidecars next to each `script.txt` plus `sources.json`. Each `[<SUBJECT_TAG>]` quote becomes a Markdown blockquote with a deep-linked YouTube timestamp; `[HOST]` paragraphs inherit the nearest preceding quote's video as their "near" attribution. Same step in both modes.
+8. **Synthesize** (`oratio-tts`) — one mp3 per script.
 
 ## Output layout
 

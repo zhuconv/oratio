@@ -19,7 +19,8 @@ URL mode — one YouTube URL → one subject → short + long (themed) podcast.
     3. aggregate       (opinion-aggregator)
     4. write           (script-writer)
     5. critic(script)  (script-critic)                  [loop max 2x]
-    6. synthesize      (subprocess: Kokoro batch)
+    6. annotate        (deterministic post-process: .md + sources.json)
+    7. synthesize      (subprocess: Kokoro batch)
 
 Name mode — a person's name → corpus of talks → chronological podcast.
     0. search          (subprocess: oratio-find)
@@ -29,7 +30,8 @@ Name mode — a person's name → corpus of talks → chronological podcast.
     3. era-aggregate   (era-aggregator)
     4. write           (corpus-script-writer)
     5. critic(script)  (corpus-script-critic)           [loop max 2x]
-    6. synthesize      (subprocess: Kokoro batch)
+    6. annotate        (deterministic post-process: .md + sources.json)
+    7. synthesize      (subprocess: Kokoro batch)
 
 Each agent phase is a single ``query()`` call to the local ``claude`` binary via
 claude-agent-sdk. No ANTHROPIC_API_KEY is used — auth is inherited from the
@@ -695,6 +697,15 @@ async def orchestrate(url: str, model: str, skip_fetch: bool, skip_synth: bool) 
     else:
         say("  script-critic still failing; proceeding anyway")
 
+    # Annotate: deterministic .md sidecars with source-linked timestamps. Runs
+    # before synth so the markdown is available even with --skip-synth.
+    try:
+        from oratio.annotate.markdown import annotate_url
+        for p in annotate_url(video_dir):
+            say(f"  annotated: {p.relative_to(OUTPUT_ROOT)}")
+    except Exception as e:
+        say(f"  annotate skipped: {e}")
+
     if skip_synth:
         say("skipping synth per --skip-synth")
         return
@@ -796,6 +807,14 @@ async def orchestrate_name(
         )
     else:
         say("  corpus-script-critic still failing; proceeding anyway")
+
+    # Annotate the corpus output with source-linked Markdown sidecars.
+    try:
+        from oratio.annotate.markdown import annotate_corpus
+        for p in annotate_corpus(scripts_dir):
+            say(f"  annotated: {p.relative_to(OUTPUT_ROOT)}")
+    except Exception as e:
+        say(f"  annotate skipped: {e}")
 
     if skip_synth:
         say("skipping synth per --skip-synth")

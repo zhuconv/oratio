@@ -207,12 +207,25 @@ uv run oratio <URL_or_name> [--model claude-opus-4-6]
 Every stage is a standalone command:
 
 ```bash
-uv run oratio-fetch <URL> -o output/                  # transcript only
-uv run oratio-find "<name>" -o output/<Subject>/_corpus/  # YouTube search only
-uv run oratio-tts path/to/script.txt -o out.mp3 \         # TTS from any tagged script
+uv run oratio-fetch <URL> -o output/                          # transcript only
+uv run oratio-find "<name>" -o output/<Subject>/_corpus/      # YouTube search only
+uv run oratio-tts path/to/script.txt -o out.mp3 \             # TTS from any tagged script
                   --subject-gender male
-uv run oratio-doctor                                       # dependency self-check
+uv run oratio-annotate output/<Subject>/                      # generate .md sidecars on demand
+uv run oratio-doctor                                          # dependency self-check
 ```
+
+### Source-linked Markdown sidecars
+
+After a run finishes (or with `oratio-annotate` on an existing run), every `script.txt` gets a sibling `script.md` plus `sources.json`. Each verbatim quote is rendered as a blockquote with a deep-linked YouTube timestamp:
+
+```markdown
+> [**12:37**](https://www.youtube.com/watch?v=YnMqbpdHcaY&t=757s) · _ICAPS 2024 Keynote_ · 2024-07-02
+>
+> there was this sense in which this started to look to me at least like an actual computer where you you were you know providing a problem...
+```
+
+Click the timestamp → YouTube jumps to that exact second. Each `[HOST]` paragraph carries the nearest preceding quote's video as a "near" attribution in `sources.json`, so downstream tools can highlight what segment of which talk a paraphrase passage draws from.
 
 ## Script format
 
