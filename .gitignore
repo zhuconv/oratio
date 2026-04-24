@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# uv
+uv.lock
+
+# Generated output
+output/
+*.mp3
+*.wav
+*.srt
+*.vtt
+
+# OS
+.DS_Store
