@@ -14,13 +14,11 @@ Oratio is a single CLI that points at a YouTube URL, runs a five-stage Claude Op
 
 A 4.9-minute short produced end-to-end by the pipeline from a 64-minute RLC 2025 keynote by **Dale Schuurmans**, *Language Models and Computation*. No human edits inside the run.
 
-<p align="center">
-  <img src="examples/demo.gif" alt="Animated waveform preview of the Dale Schuurmans demo" width="100%"/>
-</p>
+https://github.com/user-attachments/assets/9eefc4ec-4dfe-4c29-8719-c23311e3d9ad
 
-🎧 **[Play the full audio (MP3, 4.9 min)](https://raw.githubusercontent.com/zhuconv/oratio/main/examples/dale_schuurmans_llms_as_universal_computers.mp3)** · 📄 **[Read the script](examples/dale_schuurmans_llms_as_universal_computers.txt)**
+🎧 **[Download the MP3](https://raw.githubusercontent.com/zhuconv/oratio/main/examples/dale_schuurmans_llms_as_universal_computers.mp3)** · 📄 **[Read the script](examples/dale_schuurmans_llms_as_universal_computers.txt)**
 
-> GitHub README markdown strips `<video>` and `<audio>` tags, so the animated waveform above is a silent GIF preview. For audio, click the MP3 link — most browsers open it in an inline player. The raw `[HOST]` / `[DALE]` tagged script is what the agents wrote; the MP3 is what Kokoro did with it.
+The `.txt` is the raw `[HOST]` / `[DALE]` tagged script the agents wrote. The MP3 is what Kokoro did with it.
 
 ## Quickstart
 
