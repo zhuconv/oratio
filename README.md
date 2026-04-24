@@ -74,7 +74,7 @@ Two wildly different source genres, same pipeline, coherent output. That's the m
 brew install espeak-ng ffmpeg
 ```
 
-**Claude Code CLI — the Agent SDK spawns this and inherits its login.** No `ANTHROPIC_API_KEY` is used anywhere in the orchestrator.
+**Claude Code CLI — the Agent SDK spawns this and inherits its login.** No `ANTHROPIC_API_KEY` is used anywhere in the orchestrator. Even if you have one exported in your shell, the orchestrator clobbers it to an empty string in the subprocess env it hands to `claude`, so every agent turn bills against your Pro/Max subscription. A `note:` is printed at run start if a key is detected.
 
 ```bash
 npm install -g @anthropic-ai/claude-code

@@ -24,6 +24,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -47,6 +48,14 @@ STAGING_DIR = OUTPUT_ROOT / "_staging"
 
 DEFAULT_MODEL = "claude-opus-4-6"
 MAX_CRITIC_ROUNDS = 2
+
+# Clobber ANTHROPIC_API_KEY in the env we hand to the `claude` binary. The SDK
+# merges this dict last, so it overrides anything inherited from the user's
+# shell. Empty string tells `claude` the key is absent, which forces it to
+# fall back to subscription auth (Pro/Max) stored in its OAuth keychain. This
+# is the only code-level guarantee that a stray exported key doesn't silently
+# switch us to API billing mid-run.
+_SUBSCRIPTION_ONLY_ENV = {"ANTHROPIC_API_KEY": ""}
 
 
 # --------------------------------------------------------------------- helpers
@@ -180,6 +189,7 @@ async def run_agent(
         allowed_tools=allowed_tools,
         permission_mode="bypassPermissions",
         cwd=str(cwd),
+        env=_SUBSCRIPTION_ONLY_ENV,
     )
     final_text_parts: list[str] = []
     say(f"→ agent: {role}")
@@ -367,7 +377,21 @@ def phase_synthesize(video_dir: Path) -> list[Path]:
 # --------------------------------------------------------------------- driver
 
 
+def _warn_if_api_key_in_env() -> None:
+    """Surface any ANTHROPIC_API_KEY in the shell env. We clobber it before
+    spawning the CLI, but warning here makes it explicit to the user that
+    their key isn't being used and billing goes through their subscription."""
+    if os.environ.get("ANTHROPIC_API_KEY"):
+        say(
+            "note: ANTHROPIC_API_KEY is set in your shell. Oratio strips it "
+            "before handing control to the local `claude` CLI, so all agent "
+            "turns bill against your Pro/Max subscription, not the API. "
+            "Unset it if the warning bothers you."
+        )
+
+
 async def orchestrate(url: str, model: str, skip_fetch: bool, skip_synth: bool) -> None:
+    _warn_if_api_key_in_env()
     vid = video_id_from_url(url)
     if skip_fetch:
         video_dir = resolve_work_dir(vid)
