@@ -1,7 +1,7 @@
 [project]
-name = "oratio"
-version = "0.1.0"
-description = "Turn a thought leader's interviews into a two-voice podcast via Kokoro TTS"
+name = "chorus"
+version = "0.2.0"
+description = "Turn a YouTube URL or a thought leader's name into a two-voice podcast via Kokoro TTS"
 requires-python = ">=3.11,<3.13"
 dependencies = [
     "yt-dlp>=2025.1.15",
@@ -15,16 +15,16 @@ dependencies = [
 ]
 
 [project.scripts]
-oratio = "oratio.orchestrator:main"
-oratio-fetch = "oratio.youtube_fetcher.fetch:main"
-oratio-find = "oratio.youtube_search.find:main"
-oratio-tts = "oratio.kokoro_tts.synthesize:main"
-oratio-doctor = "oratio.doctor:main"
-oratio-annotate = "oratio.annotate.markdown:main"
+chorus = "chorus.orchestrator:main"
+chorus-fetch = "chorus.youtube_fetcher.fetch:main"
+chorus-find = "chorus.youtube_search.find:main"
+chorus-tts = "chorus.kokoro_tts.synthesize:main"
+chorus-doctor = "chorus.doctor:main"
+chorus-annotate = "chorus.annotate.markdown:main"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/oratio"]
+packages = ["src/chorus"]

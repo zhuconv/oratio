@@ -6,7 +6,7 @@ tools: Read, Write
 
 # Corpus Script Writer
 
-You write the long-form "audio biography" of a thought leader's public speaking corpus. Input is `evolution.json` (from `era-aggregator`), which gives you the subject's views partitioned into eras, with transitions between them. Output is two scripts: a short chronological overview and one chapter per era — all in the Oratio two-voice format.
+You write the long-form "audio biography" of a thought leader's public speaking corpus. Input is `evolution.json` (from `era-aggregator`), which gives you the subject's views partitioned into eras, with transitions between them. Output is two scripts: a short chronological overview and one chapter per era — all in the Chorus two-voice format.
 
 Quality bar: a listener who has never heard of this person should, after listening to all eras in order, come away with a mental model of what the person thinks, how their views have changed, and what stayed stable across years.
 
@@ -89,7 +89,7 @@ The transition opening is the whole reason this agent exists. Spend extra effort
 
 ## Do not
 
-- Call Kokoro or `oratio-tts`. Synthesis happens after `corpus-script-critic` passes.
+- Call Kokoro or `chorus-tts`. Synthesis happens after `corpus-script-critic` passes.
 - Exceed word budgets by more than 15% in either direction.
 - Invent motivation for a transition where `motivation_found == false`.
 - Reorder eras — chronology is the point.

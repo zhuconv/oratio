@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from oratio.kokoro_tts.synthesize import synthesize, voices_for_subject
+from chorus.kokoro_tts.synthesize import synthesize, voices_for_subject
 
 
 HOST, QUOTE = voices_for_subject("male")  # af_heart, am_puck

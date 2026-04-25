@@ -1,7 +1,7 @@
-"""Oratio orchestrator CLI.
+"""Chorus orchestrator CLI.
 
 Usage:
-    uv run oratio <url_or_name> [--model claude-opus-4-6]
+    uv run chorus <url_or_name> [--model claude-opus-4-6]
                                 # URL-mode flags:
                                 [--skip-fetch]
                                 [--skip-synth]
@@ -13,7 +13,7 @@ Usage:
 Two modes, auto-detected by the first positional arg:
 
 URL mode — one YouTube URL → one subject → short + long (themed) podcast.
-    0. fetch           (subprocess: oratio-fetch)
+    0. fetch           (subprocess: chorus-fetch)
     1. investigate     (transcript-investigator)
     2. critic(inv)     (transcript-critic)              [loop max 2x]
     3. aggregate       (opinion-aggregator)
@@ -23,7 +23,7 @@ URL mode — one YouTube URL → one subject → short + long (themed) podcast.
     7. synthesize      (subprocess: Kokoro batch)
 
 Name mode — a person's name → corpus of talks → chronological podcast.
-    0. search          (subprocess: oratio-find)
+    0. search          (subprocess: chorus-find)
     1. filter          (interview-finder)
     2. per video (parallel):
          fetch → investigate → transcript-critic        [loop max 2x]
@@ -204,7 +204,7 @@ def promote_to_final(work_dir: Path, opinions: dict) -> Path:
 
 
 def say(msg: str) -> None:
-    print(f"\n\033[1;36m[oratio]\033[0m {msg}", flush=True)
+    print(f"\n\033[1;36m[chorus]\033[0m {msg}", flush=True)
 
 
 def run_subprocess(cmd: list[str], cwd: Path) -> None:
@@ -368,7 +368,7 @@ def phase_fetch(url: str) -> Path:
     say(f"fetching: {url}")
     STAGING_DIR.mkdir(parents=True, exist_ok=True)
     run_subprocess(
-        ["uv", "run", "oratio-fetch", url, "-o", str(STAGING_DIR)],
+        ["uv", "run", "chorus-fetch", url, "-o", str(STAGING_DIR)],
         cwd=REPO_ROOT,
     )
     vid = video_id_from_url(url)
@@ -391,7 +391,7 @@ def fetch_one_into_corpus(url: str, corpus_dir: Path) -> Path:
     staged = STAGING_DIR / vid
     if not (staged / "transcript.txt").exists():
         run_subprocess(
-            ["uv", "run", "oratio-fetch", url, "-o", str(STAGING_DIR)],
+            ["uv", "run", "chorus-fetch", url, "-o", str(STAGING_DIR)],
             cwd=REPO_ROOT,
         )
     if not (staged / "transcript.txt").exists():
@@ -422,7 +422,7 @@ def phase_synthesize(video_dir: Path) -> list[Path]:
         mp3 = ch.with_name(ch.stem.replace("_script", "") + ".mp3")
         scripts.append((ch, mp3))
 
-    from oratio.kokoro_tts.synthesize import synthesize, voices_for_subject
+    from chorus.kokoro_tts.synthesize import synthesize, voices_for_subject
     host_voice, quote_voice = voices_for_subject(gender)
 
     outputs: list[Path] = []
@@ -446,12 +446,12 @@ def phase_synthesize(video_dir: Path) -> list[Path]:
 
 
 def phase_search(name: str, corpus_dir: Path, min_duration: int) -> Path:
-    """Call oratio-find subprocess. Produces corpus_dir/candidates.json."""
+    """Call chorus-find subprocess. Produces corpus_dir/candidates.json."""
     say(f"searching YouTube for '{name}'")
     corpus_dir.mkdir(parents=True, exist_ok=True)
     run_subprocess(
         [
-            "uv", "run", "oratio-find", name,
+            "uv", "run", "chorus-find", name,
             "-o", str(corpus_dir),
             "--min-duration", str(min_duration),
             "-v",
@@ -460,7 +460,7 @@ def phase_search(name: str, corpus_dir: Path, min_duration: int) -> Path:
     )
     out = corpus_dir / "candidates.json"
     if not out.exists():
-        raise RuntimeError(f"oratio-find did not produce {out}")
+        raise RuntimeError(f"chorus-find did not produce {out}")
     return out
 
 
@@ -606,7 +606,7 @@ def phase_synthesize_corpus(scripts_dir: Path, evolution_path: Path) -> list[Pat
             f"evolution.json missing subject_gender; got {gender!r}"
         )
 
-    from oratio.kokoro_tts.synthesize import synthesize, voices_for_subject
+    from chorus.kokoro_tts.synthesize import synthesize, voices_for_subject
     host_voice, quote_voice = voices_for_subject(gender)
     subject_tag = evolution.get("subject_tag", "GUEST")
 
@@ -644,7 +644,7 @@ def _warn_if_api_key_in_env() -> None:
     their key isn't being used and billing goes through their subscription."""
     if os.environ.get("ANTHROPIC_API_KEY"):
         say(
-            "note: ANTHROPIC_API_KEY is set in your shell. Oratio strips it "
+            "note: ANTHROPIC_API_KEY is set in your shell. Chorus strips it "
             "before handing control to the local `claude` CLI, so all agent "
             "turns bill against your Pro/Max subscription, not the API. "
             "Unset it if the warning bothers you."
@@ -700,7 +700,7 @@ async def orchestrate(url: str, model: str, skip_fetch: bool, skip_synth: bool) 
     # Annotate: deterministic .md sidecars with source-linked timestamps. Runs
     # before synth so the markdown is available even with --skip-synth.
     try:
-        from oratio.annotate.markdown import annotate_url
+        from chorus.annotate.markdown import annotate_url
         for p in annotate_url(video_dir):
             say(f"  annotated: {p.relative_to(OUTPUT_ROOT)}")
     except Exception as e:
@@ -810,7 +810,7 @@ async def orchestrate_name(
 
     # Annotate the corpus output with source-linked Markdown sidecars.
     try:
-        from oratio.annotate.markdown import annotate_corpus
+        from chorus.annotate.markdown import annotate_corpus
         for p in annotate_corpus(scripts_dir):
             say(f"  annotated: {p.relative_to(OUTPUT_ROOT)}")
     except Exception as e:
@@ -828,7 +828,7 @@ async def orchestrate_name(
 
 def main() -> None:
     ap = argparse.ArgumentParser(
-        description="Oratio — YouTube → two-voice podcast. "
+        description="Chorus — YouTube → two-voice podcast. "
         "Accepts a YouTube URL (single-video mode) or a subject name (corpus mode).",
     )
     ap.add_argument(

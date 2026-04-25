@@ -50,7 +50,7 @@
   <!-- fetch -->
   <g filter="url(#soft)">
     <rect x="220" y="80" width="160" height="70" rx="10" fill="url(#toolGrad)" stroke="#58a6ff" stroke-width="1.5"/>
-    <text x="300" y="103" text-anchor="middle" font-size="14" font-weight="600" fill="#58a6ff">oratio-fetch</text>
+    <text x="300" y="103" text-anchor="middle" font-size="14" font-weight="600" fill="#58a6ff">chorus-fetch</text>
     <text x="300" y="122" text-anchor="middle" font-size="11" fill="#7d8590">yt-dlp</text>
     <text x="300" y="138" text-anchor="middle" font-size="10" fill="#7d8590">transcript.srt + .txt</text>
   </g>
@@ -100,7 +100,7 @@
   </g>
   <text x="690" y="254" text-anchor="middle" font-size="11" fill="#7d8590" font-style="italic">opinions.json</text>
 
-  <!-- row 2: writer → script-critic → oratio-tts → MP3 -->
+  <!-- row 2: writer → script-critic → chorus-tts → MP3 -->
   <g filter="url(#soft)">
     <rect x="220" y="300" width="160" height="70" rx="10" fill="url(#agentGrad)" stroke="#bc8cff" stroke-width="1.5"/>
     <text x="300" y="323" text-anchor="middle" font-size="14" font-weight="600" fill="#bc8cff">script-writer</text>
@@ -117,7 +117,7 @@
 
   <g filter="url(#soft)">
     <rect x="620" y="300" width="160" height="70" rx="10" fill="url(#toolGrad)" stroke="#58a6ff" stroke-width="1.5"/>
-    <text x="700" y="323" text-anchor="middle" font-size="14" font-weight="600" fill="#58a6ff">oratio-tts</text>
+    <text x="700" y="323" text-anchor="middle" font-size="14" font-weight="600" fill="#58a6ff">chorus-tts</text>
     <text x="700" y="342" text-anchor="middle" font-size="11" fill="#7d8590">Kokoro 82M · local</text>
     <text x="700" y="357" text-anchor="middle" font-size="11" fill="#7d8590">two voices, CPU / MPS</text>
   </g>

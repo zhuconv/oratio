@@ -1,10 +1,10 @@
-# Oratio
+# Chorus
 
-**A two-voice podcast studio in your terminal. Every quote audited byte-for-byte. Every quote linked back to the second on YouTube.**
+**Your Watch Later is a graveyard of 60-minute talks you'll never finish. Chorus is the necromancer.**
 
-Drop in a YouTube URL and Oratio gives you a 5-minute short plus themed long chapters. Drop in a *name* — `"Dale Schuurmans"`, `"Mo Gawdat"` — and Oratio searches YouTube, picks 3–5 talks, then writes a chronological audio biography that tracks how the person's views evolved era by era.
+Paste a YouTube URL — or just a name like `"Dale Schuurmans"` — and walk away with a 5-minute two-voice short plus themed long chapters: a host narrates, the subject *speaks* their own verbatim quotes. Name mode hunts 3–5 talks across YouTube and stitches a chronological audio biography of how the person's thinking actually evolved.
 
-Claude Opus 4.6 agents do the writing. Kokoro 82M renders it locally in two voices. The whole pipeline bills against your Claude Pro/Max subscription — **no `ANTHROPIC_API_KEY` needed**.
+Claude Opus 4.6 agents write it; a critic agent `grep -F`s every quoted line back into the raw transcript and **blocks the pipeline if a single word drifts**. Kokoro 82M renders it locally in two voices. Every quote in the script links back to the exact second on YouTube. Runs on your Claude Pro/Max subscription — **no `ANTHROPIC_API_KEY` needed**.
 
 [![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)](#license)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB.svg?logo=python&logoColor=white)](https://www.python.org)
@@ -20,9 +20,9 @@ A 4.9-minute short the pipeline produced from a 64-minute RLC 2025 keynote by **
   <video src="https://github.com/user-attachments/assets/9eefc4ec-4dfe-4c29-8719-c23311e3d9ad" controls width="480"></video>
 </p>
 
-🎧 **[Download the MP3](https://raw.githubusercontent.com/zhuconv/oratio/main/examples/dale_schuurmans_llms_as_universal_computers.mp3)** · 📄 **[Read the script](examples/dale_schuurmans_llms_as_universal_computers.txt)**
+🎧 **[Download the MP3](https://raw.githubusercontent.com/zhuconv/chorus/main/examples/dale_schuurmans_llms_as_universal_computers.mp3)** · 📄 **[Read the annotated script](examples/dale_schuurmans_llms_as_universal_computers.md)**
 
-The `.txt` is the raw `[HOST]` / `[DALE]` tagged script the agents wrote. The MP3 is what Kokoro did with it.
+The `.md` is the human-readable script — every quote is a blockquote with a clickable YouTube timestamp. The MP3 is what Kokoro did with the underlying TTS-tagged source.
 
 ## Why this is not another summarizer
 
@@ -30,7 +30,7 @@ The `.txt` is the raw `[HOST]` / `[DALE]` tagged script the agents wrote. The MP
 
 **2. The host and the subject sound different.** Kokoro renders narration in one voice and quotes in another, paired by subject gender. "What the host says about Dale" and "what Dale actually said" are *audibly* distinct.
 
-**3. Source-linked Markdown sidecars.** Every script has a `script.md` next to it. Each quote is a blockquote with a deep-linked YouTube timestamp. Click → land on the exact second.
+**3. Source-linked Markdown is the published artifact.** Every script ships as `script.md` — each verbatim quote becomes a blockquote with a deep-linked YouTube timestamp. Click → land on the exact second. The raw `[HOST]`/`[DALE]` `script.txt` is the TTS source; the `.md` is what humans read.
 
 ```markdown
 > [**12:37**](https://www.youtube.com/watch?v=YnMqbpdHcaY&t=757s) · _ICAPS 2024 Keynote_ · 2024-07-02
@@ -47,26 +47,26 @@ The `.txt` is the raw `[HOST]` / `[DALE]` tagged script the agents wrote. The MP
 ### URL mode — one video → short + chapters
 
 ```bash
-uvx oratio "https://www.youtube.com/watch?v=yGLoWZP1MyA"
+uvx chorus "https://www.youtube.com/watch?v=yGLoWZP1MyA"
 ```
 
-A `transcript-investigator` extracts `(theme, thesis, verbatim_quote, timestamp)` tuples. The `transcript-critic` greps each quote. The `opinion-aggregator` clusters into 3–5 themes. The `script-writer` drafts a ~5-minute short plus one ~10-minute chapter per theme. The `script-critic` verifies. Kokoro renders.
+A `transcript-investigator` extracts `(theme, thesis, verbatim_quote, timestamp)` tuples. The `transcript-critic` greps each quote. The `opinion-aggregator` clusters into 3–5 themes. The `script-writer` drafts a ~5-minute short plus one ~10-minute chapter per theme. The `script-critic` verifies. `chorus-annotate` produces `script.md` sidecars. Kokoro renders.
 
 ### Name mode — one name → chronological audio biography
 
 ```bash
-uvx oratio "Dale Schuurmans" --max-videos 5
+uvx chorus "Dale Schuurmans" --max-videos 5
 ```
 
-This is the more ambitious mode. Oratio:
+This is the more ambitious mode. Chorus:
 
-1. **Searches YouTube** (`oratio-find`) across 6 keyword templates — `keynote`, `interview`, `podcast`, `talk`, `lecture`, `fireside` — applies a 20-min duration filter, dedupes, enriches with upload dates → `candidates.json`.
+1. **Searches YouTube** (`chorus-find`) across 6 keyword templates — `keynote`, `interview`, `podcast`, `talk`, `lecture`, `fireside` — applies a 20-min duration filter, dedupes, enriches with upload dates → `candidates.json`.
 2. **Filters to formal talks BY the subject** ([`interview-finder`](agents/interview-finder.md)) — drops commentary, clips, wrong-person matches → `videos.json`.
 3. **Investigates every video in parallel** — `transcript-investigator + transcript-critic` loops fan out via `asyncio.gather`.
 4. **Builds a chronological era structure** ([`era-aggregator`](agents/era-aggregator.md)) — clusters opinions into 2–4 eras, identifies transitions with before/after quotes, surfaces stable themes that span every era. **Only agent that sees more than one talk at once.** Refuses to invent why a view shifted.
 5. **Writes a chronological script** ([`corpus-script-writer`](agents/corpus-script-writer.md)) — 5-minute overview plus one ~10-minute chapter per era. Each era chapter opens with a transition passage from the previous era.
 6. **Cross-source critic** ([`corpus-script-critic`](agents/corpus-script-critic.md)) — verbatim-grep against every per-video transcript, and a hard `fabricated_motivation` check on every transition opening.
-7. **Annotates** — `script.md` + `sources.json` for every script (deterministic Python via `oratio-annotate`).
+7. **Annotates** — `script.md` + `sources.json` for every script (deterministic Python via `chorus-annotate`).
 8. **Renders** — Kokoro emits one MP3 per script.
 
 You get an overview MP3 plus one MP3 per era. Re-run any time — `--skip-search` reuses the curated `videos.json`; finished stages resume from disk.
@@ -80,36 +80,36 @@ Pick whichever install style matches how you work:
 ```bash
 brew install espeak-ng ffmpeg
 npm install -g @anthropic-ai/claude-code && claude    # one-time login
-uvx oratio "https://www.youtube.com/watch?v=<ID>"     # URL mode
-uvx oratio "Dale Schuurmans"                          # name mode
-uvx oratio-doctor                                     # self-check deps
+uvx chorus "https://www.youtube.com/watch?v=<ID>"     # URL mode
+uvx chorus "Dale Schuurmans"                          # name mode
+uvx chorus-doctor                                     # self-check deps
 ```
 
 ### Inside Claude Code: install as a plugin
 
 ```
-/plugin install zhuconv/oratio
-/oratio https://www.youtube.com/watch?v=<ID>
-/oratio "Dale Schuurmans" --max-videos 5
+/plugin install zhuconv/chorus
+/chorus https://www.youtube.com/watch?v=<ID>
+/chorus "Dale Schuurmans" --max-videos 5
 ```
 
-Ships all 9 agents plus the `/oratio` skill. Requires the `oratio` Python package (`uv tool install oratio` or `pip install oratio`).
+Ships all 9 agents plus the `/chorus` skill. Requires the `chorus` Python package (`uv tool install chorus` or `pip install chorus`).
 
 ### Traditional clone-and-uv
 
 ```bash
 brew install espeak-ng ffmpeg
 npm install -g @anthropic-ai/claude-code && claude
-git clone https://github.com/zhuconv/oratio && cd oratio
+git clone https://github.com/zhuconv/chorus && cd chorus
 uv sync
-uv run oratio "https://www.youtube.com/watch?v=<ID>"
+uv run chorus "https://www.youtube.com/watch?v=<ID>"
 open output/<Subject>/<date>__<id>__<slug>/short/short.mp3
 ```
 
 ## Pipeline
 
 <p align="center">
-  <img src="assets/pipeline.svg" alt="Oratio pipeline: YouTube URL → fetch → investigator → transcript-critic → aggregator → script-writer → script-critic → Kokoro TTS → MP3s. Critics can retry their upstream agent up to 2x." width="100%"/>
+  <img src="assets/pipeline.svg" alt="Chorus pipeline: YouTube URL → fetch → investigator → transcript-critic → aggregator → script-writer → script-critic → Kokoro TTS → MP3s. Critics can retry their upstream agent up to 2x." width="100%"/>
 </p>
 
 Every box is one `claude_agent_sdk.query()` call. System prompts live in [`agents/<role>.md`](agents) — no code edits required to tweak behavior. Critics can send work back upstream for one retry; after that the orchestrator surfaces the failure.
@@ -136,12 +136,12 @@ A single command pulled in 3 talks spanning 2019–2025 and produced 4 MP3s tota
 
 | File | Era | Source talk |
 |---|---|---|
-| [`short/overview.mp3`](https://raw.githubusercontent.com/zhuconv/oratio/main/examples/dale_schuurmans_name_mode_overview.mp3) | All three | Chronological overview |
+| [`short/overview.mp3`](https://raw.githubusercontent.com/zhuconv/chorus/main/examples/dale_schuurmans_name_mode_overview.mp3) | All three | Chronological overview |
 | `long/era01_subbasement.mp3` | 2019 — Optimization in RL | DLRLSS 2019 |
 | `long/era02_llms_as_computers.mp3` | 2024 — LLMs as a new kind of computer | ICAPS 2024 Keynote |
 | `long/era03_hard_limits.mp3` | 2025 — Computational impossibility results | RLC 2025 keynote |
 
-🎧 **[Listen to the chronological overview](https://raw.githubusercontent.com/zhuconv/oratio/main/examples/dale_schuurmans_name_mode_overview.mp3)** · 📄 **[Read the annotated script](examples/dale_schuurmans_name_mode_overview.md)** (every quote has a clickable YouTube timestamp)
+🎧 **[Listen to the chronological overview](https://raw.githubusercontent.com/zhuconv/chorus/main/examples/dale_schuurmans_name_mode_overview.mp3)** · 📄 **[Read the annotated script](examples/dale_schuurmans_name_mode_overview.md)** (every quote has a clickable YouTube timestamp)
 
 The `era-aggregator` identified one stable theme running through all three eras — *"Think computationally, not statistically"* — supported by verbatim quotes from each talk. That theme becomes the through-line of the overview script.
 
@@ -149,7 +149,7 @@ The `era-aggregator` identified one stable theme running through all three eras 
 
 | Source | Length | Kind | Result |
 |---|---|---|---|
-| **Dale Schuurmans** — RLC 2025 keynote, *Language Models and Computation* | 64 min | Academic lecture | 5 MP3s, ~42 min total. Zero human edits inside the pipeline. [Listen.](https://raw.githubusercontent.com/zhuconv/oratio/main/examples/dale_schuurmans_llms_as_universal_computers.mp3) |
+| **Dale Schuurmans** — RLC 2025 keynote, *Language Models and Computation* | 64 min | Academic lecture | 5 MP3s, ~42 min total. Zero human edits inside the pipeline. [Listen.](https://raw.githubusercontent.com/zhuconv/chorus/main/examples/dale_schuurmans_llms_as_universal_computers.mp3) |
 | **Mo Gawdat** — interview on AI, UBI, and the job market | 40 min | Pop interview | 5 MP3s, ~29 min total. Validated end-to-end. |
 
 Two genres, same pipeline, coherent output.
@@ -168,10 +168,15 @@ output/
         ├── transcript_critic_report.json
         ├── opinions.json                  # aggregator — themes, subject_gender
         ├── script_critic_report.json
-        ├── short/{script.txt, script.md, sources.json, short.mp3}
+        ├── short/
+        │   ├── script.txt                 # raw [HOST]/[DALE] tagged TTS source
+        │   ├── script.md                  # human-readable, source-linked
+        │   ├── sources.json
+        │   └── short.mp3
         └── long/
             ├── ch01_<slug>_script.txt     # ~1500 words / ~10 min per chapter
             ├── ch01_<slug>.md             # source-linked sidecar
+            ├── ch01_<slug>_sources.json
             ├── ch01_<slug>.mp3
             └── ...
 ```
@@ -182,16 +187,21 @@ output/
 output/
 └── Dale_Schuurmans/
     ├── _corpus/
-    │   ├── candidates.json              # oratio-find raw search
+    │   ├── candidates.json              # chorus-find raw search
     │   ├── videos.json                  # interview-finder verdict
     │   ├── opinions_index.json
     │   ├── evolution.json               # era-aggregator — eras, transitions, stable themes
     │   ├── script_critic_report.json
     │   └── <date>__<video_id>__<slug>/  # per-video artifacts
-    ├── short/{script.txt, script.md, sources.json, overview.mp3}
+    ├── short/
+    │   ├── script.txt
+    │   ├── script.md                    # chronological overview, source-linked
+    │   ├── sources.json
+    │   └── overview.mp3
     └── long/
         ├── era01_<slug>_script.txt      # one chapter per era
         ├── era01_<slug>.md
+        ├── era01_<slug>_sources.json
         ├── era01_<slug>.mp3
         └── ...
 ```
@@ -208,7 +218,7 @@ Every run produces a `script.md` next to `script.txt` plus `sources.json`. Each 
 
 Click the timestamp → YouTube jumps to that exact second. Each `[HOST]` paragraph carries the nearest preceding quote's video as a "near" attribution in `sources.json`, so downstream tools can highlight which talk a paraphrase passage draws from.
 
-Run `oratio-annotate` on any existing run to regenerate sidecars without touching the agent pipeline.
+Run `chorus-annotate` on any existing run to regenerate sidecars without touching the agent pipeline.
 
 ## Subscription auth
 
@@ -232,6 +242,8 @@ The SDK merges this dict last when building the subprocess env. The clobbered ke
 - `[<FIRSTNAME>]` — subject voice. **Verbatim quotes only**, wrapped in `"…"`. Mo Gawdat → `[MO]`. Naval Ravikant → `[NAVAL]`.
 - Blank line = paragraph break (longer audio pause).
 
+This `.txt` is the TTS source Kokoro reads. Humans read the `.md` sidecar that `chorus-annotate` generates next to it.
+
 Two Kokoro voices, paired by subject gender so the narrator and subject are always audibly different:
 
 | Subject gender | Host voice | Quote voice |
@@ -239,25 +251,25 @@ Two Kokoro voices, paired by subject gender so the narrator and subject are alwa
 | Male   | `af_heart` | `am_puck`  |
 | Female | `am_puck`  | `af_heart` |
 
-Override with `--host-voice` / `--quote-voice` on `oratio-tts`.
+Override with `--host-voice` / `--quote-voice` on `chorus-tts`.
 
 ## Single-stage CLIs
 
 Every stage is a standalone command:
 
 ```bash
-uv run oratio-fetch <URL> -o output/                          # transcript only
-uv run oratio-find "<name>" -o output/<Subject>/_corpus/      # YouTube search only
-uv run oratio-tts path/to/script.txt -o out.mp3 \             # TTS from any tagged script
+uv run chorus-fetch <URL> -o output/                          # transcript only
+uv run chorus-find "<name>" -o output/<Subject>/_corpus/      # YouTube search only
+uv run chorus-tts path/to/script.txt -o out.mp3 \             # TTS from any tagged script
                   --subject-gender male
-uv run oratio-annotate output/<Subject>/                      # regenerate .md sidecars
-uv run oratio-doctor                                          # dependency self-check
+uv run chorus-annotate output/<Subject>/                      # regenerate .md sidecars
+uv run chorus-doctor                                          # dependency self-check
 ```
 
 ## Flags
 
 ```bash
-uv run oratio <URL_or_name> [--model claude-opus-4-6]
+uv run chorus <URL_or_name> [--model claude-opus-4-6]
                             # URL mode:
                             [--skip-fetch]         # reuse existing transcript
                             # name mode:
@@ -305,7 +317,7 @@ Useful tweaks:
 - Loosen `script-critic` / `corpus-script-critic` acronym-expansion for technical audiences (they currently nag "AI" and "LLM" on every occurrence).
 - Change chapter-count target in `opinion-aggregator` (defaults to 3–5 based on content density).
 - Tighten `transcript-investigator` density targets for longer sources.
-- Change the search keyword menu in `src/oratio/youtube_search/find.py::DEFAULT_QUERIES` or raise `DEFAULT_PER_QUERY` if the finder needs a bigger pool.
+- Change the search keyword menu in `src/chorus/youtube_search/find.py::DEFAULT_QUERIES` or raise `DEFAULT_PER_QUERY` if the finder needs a bigger pool.
 - Tune the era boundaries in `era-aggregator.md` — 2–4 eras is the default envelope; widen if you're processing someone with a 30-year corpus.
 
 ## Known limitations
@@ -323,14 +335,14 @@ Useful tweaks:
 - `--subject-name-hint` / `--institution` flags to disambiguate same-name people at the finder stage.
 - Relax `script-critic` / `corpus-script-critic` acronym strictness automatically for technical audiences.
 - Optional `--style` preset for the script writers (editorial / narrative / lecture-notes).
-- Parallel chapter synthesis in `oratio-tts` (currently sequential per script).
+- Parallel chapter synthesis in `chorus-tts` (currently sequential per script).
 - Cached `candidates.json` warmup — fall back to a stale cache with a warning when `--skip-search` is set but no cache exists.
-- Publish to PyPI so `uvx oratio` works without cloning.
+- Publish to PyPI so `uvx chorus` works without cloning.
 
 ## Repo map
 
 ```
-oratio/
+chorus/
 ├── pyproject.toml                 # deps + 6 CLI entry points
 ├── .claude-plugin/plugin.json     # Claude Code plugin manifest
 ├── agents/                        # 9 markdown agent specs (editable)
@@ -343,19 +355,19 @@ oratio/
 │   ├── era-aggregator.md          # name mode: chronological clustering + transitions
 │   ├── corpus-script-writer.md    # name mode: per-era chapters with transition openings
 │   └── corpus-script-critic.md    # name mode: cross-source verbatim + fabrication checks
-├── skills/oratio/SKILL.md         # /oratio slash-command spec
+├── skills/chorus/SKILL.md         # /chorus slash-command spec
 ├── .claude/                       # symlinks to agents/ and skills/ for in-repo dev
-├── src/oratio/
-│   ├── orchestrator.py            # `oratio` CLI — URL + name mode driver
-│   ├── youtube_fetcher/fetch.py   # `oratio-fetch` — yt-dlp transcript fetcher
-│   ├── youtube_search/find.py     # `oratio-find` — yt-dlp name-based search
-│   ├── kokoro_tts/synthesize.py   # `oratio-tts` — two-voice Kokoro wrapper
-│   ├── annotate/markdown.py       # `oratio-annotate` — .md sidecar generator
-│   └── doctor.py                  # `oratio-doctor` — dependency self-check
-├── examples/                      # Dale Schuurmans short (mp3 + txt)
+├── src/chorus/
+│   ├── orchestrator.py            # `chorus` CLI — URL + name mode driver
+│   ├── youtube_fetcher/fetch.py   # `chorus-fetch` — yt-dlp transcript fetcher
+│   ├── youtube_search/find.py     # `chorus-find` — yt-dlp name-based search
+│   ├── kokoro_tts/synthesize.py   # `chorus-tts` — two-voice Kokoro wrapper
+│   ├── annotate/markdown.py       # `chorus-annotate` — .md sidecar generator
+│   └── doctor.py                  # `chorus-doctor` — dependency self-check
+├── examples/                      # Dale Schuurmans short (mp3 + md + txt)
 └── output/                        # per-video + per-subject artifacts (gitignored)
 ```
 
 ## License
 
-MIT for the Oratio code. Kokoro model weights are Apache-2.0. You are responsible for complying with YouTube's Terms of Service for any transcripts you fetch.
+MIT for the Chorus code. Kokoro model weights are Apache-2.0. You are responsible for complying with YouTube's Terms of Service for any transcripts you fetch.

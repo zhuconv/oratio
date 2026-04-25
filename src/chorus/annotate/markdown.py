@@ -1,4 +1,4 @@
-"""Annotate Oratio scripts with source-linked Markdown.
+"""Annotate Chorus scripts with source-linked Markdown.
 
 Pure Python post-processor — no agent turns. For each ``[<SUBJECT>]`` verbatim
 quote in a TTS-ready script, we emit a Markdown blockquote with a YouTube
@@ -20,7 +20,7 @@ source video id, timestamp (seconds), and a deep-link URL — useful for any
 downstream tool that wants to sync audio playback to source video.
 
 CLI:
-    oratio-annotate <run_or_subject_dir>
+    chorus-annotate <run_or_subject_dir>
 """
 
 from __future__ import annotations
@@ -72,7 +72,7 @@ _TAG_RE = re.compile(r"^\[([A-Z][A-Z0-9_]*)\]\s*(.*)$")
 
 
 def parse_script(script_text: str) -> list[Block]:
-    """Parse an Oratio TTS script into ordered ``[TAG]`` blocks. Blank lines
+    """Parse a Chorus TTS script into ordered ``[TAG]`` blocks. Blank lines
     end a block; continuation lines (no tag prefix) extend the current one."""
     blocks: list[Block] = []
     cur_tag: str | None = None
@@ -492,7 +492,7 @@ def annotate(target: Path) -> list[Path]:
     if (target / "opinions.json").exists():
         return annotate_url(target)
     raise FileNotFoundError(
-        f"could not detect Oratio output mode in {target}. "
+        f"could not detect Chorus output mode in {target}. "
         f"Expected '_corpus/evolution.json' (name mode) or 'opinions.json' (URL mode)."
     )
 
@@ -500,7 +500,7 @@ def annotate(target: Path) -> list[Path]:
 def main() -> None:
     ap = argparse.ArgumentParser(
         description=(
-            "Emit source-linked Markdown + sources.json next to each Oratio "
+            "Emit source-linked Markdown + sources.json next to each Chorus "
             "script.txt. Auto-detects URL vs name mode."
         ),
     )

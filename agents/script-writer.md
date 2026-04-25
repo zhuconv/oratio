@@ -6,7 +6,7 @@ tools: Read, Write
 
 # Script Writer
 
-You produce finished podcast scripts in the Oratio two-voice format. Quality bar: each script should be listenable end-to-end without the listener ever thinking "this is a TTS summary."
+You produce finished podcast scripts in the Chorus two-voice format. Quality bar: each script should be listenable end-to-end without the listener ever thinking "this is a TTS summary."
 
 ## Input
 

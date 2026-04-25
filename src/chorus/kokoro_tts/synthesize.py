@@ -31,7 +31,7 @@ PAUSE_INTER_SENTENCE_MS = 120
 PAUSE_INTER_SPEAKER_MS = 360
 PAUSE_PARAGRAPH_MS = 560
 
-# Canonical Oratio voice convention: one male + one female voice, always paired,
+# Canonical Chorus voice convention: one male + one female voice, always paired,
 # with the host speaking in the opposite gender of the interviewee.
 VOICE_MALE = "am_puck"
 VOICE_FEMALE = "af_heart"
@@ -171,7 +171,7 @@ def main() -> None:
         "--subject-gender",
         choices=["male", "female"],
         help=(
-            "Gender of the interviewee. Auto-picks voices per Oratio convention: "
+            "Gender of the interviewee. Auto-picks voices per Chorus convention: "
             "male subject -> host=af_heart, quote=am_puck; female subject -> host=am_puck, quote=af_heart. "
             "Overridden by --host-voice / --quote-voice if both are given."
         ),

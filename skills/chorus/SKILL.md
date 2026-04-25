@@ -1,9 +1,9 @@
 ---
-name: oratio
-description: Turn a YouTube URL (single-video mode) or a thought leader's name (corpus mode) into a two-voice podcast. Produces a ~5 min short overview plus per-theme (URL mode) or per-era (name mode) long chapters, all synthesized via Kokoro 82M TTS. Trigger with /oratio <URL> or /oratio <name>.
+name: chorus
+description: Turn a YouTube URL (single-video mode) or a thought leader's name (corpus mode) into a two-voice podcast. Produces a ~5 min short overview plus per-theme (URL mode) or per-era (name mode) long chapters, all synthesized via Kokoro 82M TTS. Trigger with /chorus <URL> or /chorus <name>.
 ---
 
-# Oratio: YouTube → Two-Voice Podcast
+# Chorus: YouTube → Two-Voice Podcast
 
 Turns a thought leader's public-speaking record into a two-voice podcast. Two modes:
 
@@ -22,8 +22,8 @@ All stages run through local agent `query()` calls to your `claude` CLI (Pro/Max
 ## Invocation
 
 ```
-/oratio <youtube_url>                 # URL mode
-/oratio <subject name>                # name mode
+/chorus <youtube_url>                 # URL mode
+/chorus <subject name>                # name mode
   [--max-videos 5]                    # name mode: cap on videos processed
   [--min-duration 1200]               # name mode: min seconds per video
   [--skip-search]                     # name mode: reuse candidates.json
@@ -34,25 +34,25 @@ All stages run through local agent `query()` calls to your `claude` CLI (Pro/Max
 
 ## URL-mode pipeline
 
-1. **Fetch** (`oratio-fetch`) — yt-dlp pulls subtitles + metadata.
+1. **Fetch** (`chorus-fetch`) — yt-dlp pulls subtitles + metadata.
 2. **Investigate** (`transcript-investigator`) — extracts `(theme, thesis, verbatim_quote, timestamp)` tuples.
 3. **Critique investigation** (`transcript-critic`) — greps every quote against `transcript.txt`.
 4. **Aggregate** (`opinion-aggregator`) — clusters into 3–5 themes, assigns `subject_gender` + `subject_tag`.
 5. **Write** (`script-writer`) — `short/script.txt` (~800 words) + `long/ch<NN>_<slug>_script.txt` (~1500 words each).
 6. **Critique script** (`script-critic`) — verbatim fidelity, TTS style, word counts.
-7. **Annotate** — `.md` sidecars + `sources.json` (deterministic Python, no agent).
-8. **Synthesize** (`oratio-tts`) — one mp3 per script.
+7. **Annotate** — `.md` sidecars + `sources.json` (deterministic Python, no agent). The `.md` is what humans read; the `.txt` is what Kokoro consumes.
+8. **Synthesize** (`chorus-tts`) — one mp3 per script.
 
 ## Name-mode pipeline
 
-1. **Search** (`oratio-find`) — yt-dlp Python API, multi-keyword search (keynote/interview/podcast/talk/lecture/fireside), duration filter, dedupe. Emits `candidates.json`.
+1. **Search** (`chorus-find`) — yt-dlp Python API, multi-keyword search (keynote/interview/podcast/talk/lecture/fireside), duration filter, dedupe. Emits `candidates.json`.
 2. **Filter** (`interview-finder`) — agent picks formal talks BY the subject (not about), sorted newest-first, with era hints. Emits `videos.json`.
-3. **Per video (parallel)** — `oratio-fetch` → `transcript-investigator` → `transcript-critic` loop.
+3. **Per video (parallel)** — `chorus-fetch` → `transcript-investigator` → `transcript-critic` loop.
 4. **Era-aggregate** (`era-aggregator`) — clusters opinions chronologically into 2–4 eras, identifies transitions with before/after quotes, flags stable themes. Critically: **never fabricates motivation** — if the subject never said why their view shifted, that's marked honestly.
 5. **Corpus script-write** (`corpus-script-writer`) — `short/script.txt` (chronological overview, ~900 words) + `long/<chapter_slug>_script.txt` per era. Each era chapter opens with a transition passage from the previous era.
 6. **Corpus script-critic** (`corpus-script-critic`) — verbatim fidelity across all source transcripts, plus `fabricated_motivation` check on every transition opening.
 7. **Annotate** (deterministic Python, no agent) — emit `.md` sidecars next to each `script.txt` plus `sources.json`. Each `[<SUBJECT_TAG>]` quote becomes a Markdown blockquote with a deep-linked YouTube timestamp; `[HOST]` paragraphs inherit the nearest preceding quote's video as their "near" attribution. Same step in both modes.
-8. **Synthesize** (`oratio-tts`) — one mp3 per script.
+8. **Synthesize** (`chorus-tts`) — one mp3 per script.
 
 ## Output layout
 
@@ -62,27 +62,27 @@ output/<Subject>/<date>__<id>__<slug>/
 ├── metadata.json, transcript.srt, transcript.txt
 ├── opinions.raw.json, transcript_critic_report.json
 ├── opinions.json, script_critic_report.json
-├── short/{script.txt, short.mp3}
-└── long/{ch01_<slug>_script.txt, ch01_<slug>.mp3, ...}
+├── short/{script.txt, script.md, sources.json, short.mp3}
+└── long/{ch01_<slug>_script.txt, ch01_<slug>.md, ch01_<slug>.mp3, ...}
 ```
 
 ### Name mode
 ```
 output/<Subject>/
 ├── _corpus/
-│   ├── candidates.json               # oratio-find
+│   ├── candidates.json               # chorus-find
 │   ├── videos.json                   # interview-finder
 │   ├── opinions_index.json           # list of per-video opinions paths
 │   ├── evolution.json                # era-aggregator
 │   ├── script_critic_report.json
 │   └── <date>__<id>__<slug>/         # per-video artifacts, one per included talk
-├── short/{script.txt, overview.mp3}  # chronological overview
-└── long/{era01_<slug>_script.txt, era01_<slug>.mp3, era02_..., ...}
+├── short/{script.txt, script.md, sources.json, overview.mp3}  # chronological overview
+└── long/{era01_<slug>_script.txt, era01_<slug>.md, era01_<slug>.mp3, ...}
 ```
 
 ## Delegation rules
 
-- The orchestrator driver (`src/oratio/orchestrator.py`) is the only code that calls `query()`. Each agent phase is exactly one `query()` call.
+- The orchestrator driver (`src/chorus/orchestrator.py`) is the only code that calls `query()`. Each agent phase is exactly one `query()` call.
 - Sub-agents write their outputs to disk; the orchestrator reads paths, not contents, to keep its own context small.
 - Critic loops: max 2 rounds. If still failing after round 2, surface to user.
 - Name mode: per-video `transcript-investigator + transcript-critic` loops run in parallel via `asyncio.gather`.

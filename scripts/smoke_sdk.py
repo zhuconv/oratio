@@ -18,7 +18,7 @@ async def main() -> None:
         permission_mode="bypassPermissions",
     )
     collected: list[str] = []
-    async for msg in query(prompt="Reply with exactly: ORATIO_OK", options=opts):
+    async for msg in query(prompt="Reply with exactly: CHORUS_OK", options=opts):
         collected.append(repr(msg)[:200])
     print("\n".join(collected[-6:]))
 

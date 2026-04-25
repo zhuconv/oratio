@@ -1,6 +1,6 @@
-"""`oratio doctor` — diagnose the host environment before a run.
+"""`chorus doctor` — diagnose the host environment before a run.
 
-Checks every non-Python dependency Oratio needs and prints an actionable report
+Checks every non-Python dependency Chorus needs and prints an actionable report
 plus install hints when something is missing. Useful for uvx / pip installs
 where the user didn't clone the repo and doesn't have the README at hand.
 
@@ -118,12 +118,12 @@ def check_kokoro() -> Check:
 
 
 def check_api_key() -> Check:
-    """Informational only — having the key set is not an error; Oratio clobbers it."""
+    """Informational only — having the key set is not an error; Chorus clobbers it."""
     if os.environ.get("ANTHROPIC_API_KEY"):
         return Check(
             "ANTHROPIC_API_KEY",
             True,
-            "set — Oratio will clobber this at runtime so billing goes through your Pro/Max subscription",
+            "set — Chorus will clobber this at runtime so billing goes through your Pro/Max subscription",
         )
     return Check("ANTHROPIC_API_KEY", True, "unset (fine — subscription auth is used)")
 
@@ -143,7 +143,7 @@ def _emit_text(checks: list[Check]) -> int:
     ok_icon = "OK  "
     bad_icon = "MISS"
     failed = 0
-    print(f"oratio doctor  —  {platform.platform()}")
+    print(f"chorus doctor  —  {platform.platform()}")
     print("=" * 60)
     for c in checks:
         prefix = ok_icon if c.ok else bad_icon
@@ -154,15 +154,15 @@ def _emit_text(checks: list[Check]) -> int:
                 print(f"         hint: {c.hint}")
     print("=" * 60)
     if failed:
-        print(f"{failed} issue(s). Fix the hints above and rerun `oratio doctor`.")
+        print(f"{failed} issue(s). Fix the hints above and rerun `chorus doctor`.")
         return 1
-    print("All dependencies present. You're ready to run `oratio <url-or-name>`.")
+    print("All dependencies present. You're ready to run `chorus <url-or-name>`.")
     return 0
 
 
 def main() -> None:
     ap = argparse.ArgumentParser(
-        description="Check Oratio's host dependencies (claude CLI, ffmpeg, espeak-ng, python deps).",
+        description="Check Chorus's host dependencies (claude CLI, ffmpeg, espeak-ng, python deps).",
     )
     ap.add_argument("--json", action="store_true", help="Emit machine-readable JSON.")
     args = ap.parse_args()

@@ -12,7 +12,7 @@ Pipeline:
     5. Sort newest-first and return.
 
 CLI:
-    oratio-find "Dale Schuurmans" -o output/Dale_Schuurmans/_corpus/
+    chorus-find "Dale Schuurmans" -o output/Dale_Schuurmans/_corpus/
 """
 
 from __future__ import annotations
@@ -38,7 +38,7 @@ DEFAULT_QUERIES: tuple[str, ...] = (
 DEFAULT_PER_QUERY = 15
 DEFAULT_MIN_DURATION = 1200  # 20 min — anything shorter is almost never a formal talk
 
-_log = logging.getLogger("oratio.search")
+_log = logging.getLogger("chorus.search")
 
 
 def _flat_search(query: str, limit: int) -> list[dict]:

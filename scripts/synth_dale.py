@@ -3,7 +3,7 @@
 import json
 from pathlib import Path
 
-from oratio.kokoro_tts.synthesize import synthesize, voices_for_subject
+from chorus.kokoro_tts.synthesize import synthesize, voices_for_subject
 
 BASE = Path("output/yGLoWZP1MyA")
 opinions = json.loads((BASE / "opinions.json").read_text())

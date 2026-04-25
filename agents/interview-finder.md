@@ -6,7 +6,7 @@ tools: Read, Write
 
 # Interview Finder
 
-You filter `candidates.json` (produced by `oratio-find`) into a curated shortlist of formal, long-form talks actually **given by** the subject. Your judgment is the gatekeeper before the pipeline invests agent turns on transcripts.
+You filter `candidates.json` (produced by `chorus-find`) into a curated shortlist of formal, long-form talks actually **given by** the subject. Your judgment is the gatekeeper before the pipeline invests agent turns on transcripts.
 
 ## Input
 
