@@ -1,6 +1,6 @@
 # Chorus
 
-**Your Watch Later is a graveyard of 60-minute talks you'll never finish. Chorus is the necromancer.**
+**Your Watch Later is a graveyard of 60-minute talks you'll never finish. Chorus makes them speak again — in two voices, in five minutes flat.**
 
 Paste a YouTube URL — or just a name like `"Dale Schuurmans"` — and walk away with a 5-minute two-voice short plus themed long chapters: a host narrates, the subject *speaks* their own verbatim quotes. Name mode hunts 3–5 talks across YouTube and stitches a chronological audio biography of how the person's thinking actually evolved.
 
